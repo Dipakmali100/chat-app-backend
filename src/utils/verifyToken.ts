@@ -21,7 +21,7 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction):any
         }
 
         req.user = {
-            id: decoded.id,
+            id: decoded.userId,
             username: decoded.username,
         };
 

@@ -4,6 +4,8 @@ import http from "http";
 import { Server } from "socket.io";
 import morgan from "morgan";
 import AuthRouter from "./routes/auth";
+import ChatRouter from "./routes/chat";
+import ConnectionRouter from "./routes/connection";
 
 const PORT = process.env.PORT || 3000;
 const app=express();
@@ -15,9 +17,11 @@ app.use(cors({
     credentials: true
 }));
 
-app.use(morgan("common"));  // Use the custom format
+app.use(morgan("common")); 
 
 app.use("/api/v1/auth",AuthRouter);
+app.use("/api/v1/chat",ChatRouter);
+app.use("/api/v1/connection",ConnectionRouter);
 
 app.get("/", (req, res) => {
     res.send("Server is running...");

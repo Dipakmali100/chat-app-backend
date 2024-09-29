@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import client from "../utils/prismaClient";
 import generateWebToken from "../utils/generateWebToken";
+import DateInIST from "../constants/DateInIST";
 
 export const register = async (req: Request, res: Response): Promise<any> => {
   try {
@@ -13,10 +14,26 @@ export const register = async (req: Request, res: Response): Promise<any> => {
       });
     }
 
+    const userExists = await client.user.findUnique({
+      where: {
+        username,
+      },
+    });
+
+    if (userExists) {
+      return res.status(200).json({
+        success: false,
+        message: "User already exists",
+      });
+    }
+
+    const DateTime:any = DateInIST();
     const user = await client.user.create({
       data: {
         username,
         password,
+        createdAt: DateTime,
+        updatedAt: DateTime,
       },
     });
 
@@ -55,7 +72,7 @@ export const login = async(req:Request, res:Response):Promise<any>=>{
         if(!user){
             return res.status(200).json({
                 success: false,
-                message: "User not found",
+                message: "Username or password is incorrect",
             })
         }
 
