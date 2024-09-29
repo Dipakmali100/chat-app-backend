@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import http from "http";
 import { Server } from "socket.io";
+import morgan from "morgan";
 import AuthRouter from "./routes/auth";
 
 const PORT = process.env.PORT || 3000;
@@ -13,6 +14,11 @@ app.use(cors({
     methods: ["GET", "POST"],
     credentials: true
 }));
+
+// Custom morgan format
+const customFormat = ':remote-addr - - [:date[iso]] ":method :url HTTP/:http-version" :status :res[content-length]';
+
+app.use(morgan(customFormat));  // Use the custom format
 
 app.use("/api/v1/auth",AuthRouter);
 
