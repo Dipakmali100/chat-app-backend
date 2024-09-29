@@ -15,10 +15,7 @@ app.use(cors({
     credentials: true
 }));
 
-// Custom morgan format
-const customFormat = ':remote-addr - - [:date[iso]] ":method :url HTTP/:http-version" :status :res[content-length]';
-
-app.use(morgan(customFormat));  // Use the custom format
+app.use(morgan("common"));  // Use the custom format
 
 app.use("/api/v1/auth",AuthRouter);
 
