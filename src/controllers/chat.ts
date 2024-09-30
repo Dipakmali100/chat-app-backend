@@ -160,7 +160,7 @@ export const getFriendList = async (
 export const getChat = async (req: Request, res: Response): Promise<any> => {
   try {
     const senderId: any = req.user?.id;
-    const receiverId = req.body.receiverId;
+    const receiverId = req.body.friendId;
 
     if (!senderId) {
       return res.status(400).json({

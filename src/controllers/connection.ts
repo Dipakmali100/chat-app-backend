@@ -5,9 +5,8 @@ import DateInIST from "../constants/DateInIST";
 export const searchUser = async (req: Request, res: Response): Promise<any> => {
     try {
         const userId : any = req.user?.id;
-        const { searchedUsername } = req.body;
+        let { searchedUsername } = req.body;
 
-        console.log("User ID: ", userId);
         if(!userId){
             return res.status(400).json({
                 success: false,
@@ -21,6 +20,8 @@ export const searchUser = async (req: Request, res: Response): Promise<any> => {
                 message: "Searched username is required",
             });
         }
+
+        searchedUsername = searchedUsername.toLowerCase();
 
         let result = await client.user.findMany({
             where: {
