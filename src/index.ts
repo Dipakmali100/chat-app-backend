@@ -50,34 +50,46 @@ const users: { [key: string]: string } = {};
 io.on("connection", async (socket) => {
   // Assume users authenticate with a unique `userId`
   const userId = socket.handshake.query.userId as string | undefined;
-  
+
   // Check if `userId` exists and is valid
   if (userId) {
     // Mark the user as online
     users[userId] = socket.id;
     console.log(`${userId} is online with socket id: ${socket.id}`);
     console.log("Online users: ", users);
-    
+
     const friendList = await getFriendList(Number(userId));
     console.log(friendList);
-    
+
     // Notify user his already online friends
-    const alreadyOnlineUsers: {[key: string]: string}= {};
+    const alreadyOnlineUsers: { [key: string]: string } = {};
     friendList.forEach((friend: any) => {
       if (users[friend.secondUser.id]) {
         alreadyOnlineUsers[friend.secondUser.id] = users[friend.secondUser.id];
       }
-    })
+    });
     console.log("Already online users: ", alreadyOnlineUsers);
     io.to(socket.id).emit("alreadyOnlineUsers", alreadyOnlineUsers);
 
     // Notify other users
     friendList.forEach((friend: any) => {
       if (users[friend.secondUser.id]) {
-        io.to(users[friend.secondUser.id]).emit("newActiveUser", { userId, socketId: socket.id });
+        io.to(users[friend.secondUser.id]).emit("newActiveUser", {
+          userId,
+          socketId: socket.id,
+        });
       }
-    })
-    
+    });
+
+    // Handle chat and friend list updates
+    socket.on("sendMessage", (data) => {
+      if (users[data.receiverId]) {
+        io.to(users[data.receiverId]).emit("newMessage", {
+          senderId: data.senderId,
+        });
+        console.log("Message sent to: ", data.receiverId, " with socket id: ", users[data.receiverId]);
+      }
+    });
 
     // Handle disconnection
     socket.on("disconnect", () => {
@@ -87,9 +99,12 @@ io.on("connection", async (socket) => {
       console.log("Online users: ", users);
       friendList.forEach((friend: any) => {
         if (users[friend.secondUser.id]) {
-          io.to(users[friend.secondUser.id]).emit("removeActiveUser", { userId, socketId: socket.id });
+          io.to(users[friend.secondUser.id]).emit("removeActiveUser", {
+            userId,
+            socketId: socket.id,
+          });
         }
-      })
+      });
     });
   } else {
     console.log("User ID is undefined");
