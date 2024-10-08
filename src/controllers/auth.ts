@@ -7,11 +7,12 @@ export const register = async (req: Request, res: Response): Promise<any> => {
   try {
     let { username } = req.body;
     const { password } = req.body;
+    const { imgUrl } = req.body;
 
-    if (!username || !password) {
+    if (!username || !password || !imgUrl) {
       return res.status(200).json({
         success: false,
-        message: "Please enter username and password",
+        message: "Please enter username, password and image URL",
       });
     }
 
@@ -26,7 +27,7 @@ export const register = async (req: Request, res: Response): Promise<any> => {
     if (userExists) {
       return res.status(200).json({
         success: false,
-        message: "User already exists",
+        message: "Username already exists",
       });
     }
 
@@ -35,6 +36,7 @@ export const register = async (req: Request, res: Response): Promise<any> => {
       data: {
         username,
         password,
+        imgUrl,
         createdAt: DateTime,
         updatedAt: DateTime,
       },
@@ -42,7 +44,7 @@ export const register = async (req: Request, res: Response): Promise<any> => {
 
     return res.status(200).json({
       success: true,
-      message: "User created successfully",
+      message: "User registered successfully",
       data: user,
     });
   } catch (err) {
@@ -91,6 +93,7 @@ export const login = async (req: Request, res: Response): Promise<any> => {
       data: {
         userId: user.id,
         username: user.username,
+        imgUrl: user.imgUrl,
         token,
       },
     });
@@ -112,7 +115,7 @@ export const verify = async (req: Request, res: Response): Promise<any> => {
       message: "User verified successfully",
       data: {
         userId: id,
-        username,
+        username
       },
     });
   } catch (err) {
