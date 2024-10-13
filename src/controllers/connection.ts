@@ -34,7 +34,8 @@ export const searchUser = async (req: Request, res: Response): Promise<any> => {
             },
             select: {
                 id: true,
-                username: true
+                username: true,
+                imgUrl: true
             },
             take: 3
         });

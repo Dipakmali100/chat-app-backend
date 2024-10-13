@@ -29,6 +29,7 @@ export const getFriendList = async (
           select: {
             id: true,
             username: true,
+            imgUrl: true,
           },
         },
         createdAt: true,
@@ -41,6 +42,7 @@ export const getFriendList = async (
       username: connection.secondUser.username,
       pendingMessages: 0,
       content: "",
+      imgUrl: connection.secondUser.imgUrl,
       createdAt: connection.createdAt,
     }));
 
