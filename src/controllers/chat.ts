@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import DateInIST from "../constants/DateInIST";
 import client from "../utils/prismaClient";
+import formattedTime from "../utils/formattedTime";
 
 export const getFriendList = async (
   req: Request,
@@ -37,14 +38,19 @@ export const getFriendList = async (
     });
 
     // Reshape the result to remove the "secondUser" nesting
-    const formattedConnections = connections.map((connection) => ({
-      senderId: connection.secondUser.id,
-      username: connection.secondUser.username,
-      pendingMessages: 0,
-      content: "",
-      imgUrl: connection.secondUser.imgUrl,
-      createdAt: connection.createdAt,
-    }));
+    const formattedConnections = connections.map((connection) => {
+      const timeAndDate = formattedTime(connection.createdAt);
+      return {
+        senderId: connection.secondUser.id,
+        username: connection.secondUser.username,
+        pendingMessages: 0,
+        content: "",
+        imgUrl: connection.secondUser.imgUrl,
+        time: timeAndDate.showTime,
+        date: timeAndDate.showDate,
+        createdAt: connection.createdAt
+      };
+    });
 
     // Find pending messages for each connection
     const pendingMessages = await client.message.groupBy({
@@ -131,6 +137,9 @@ export const getFriendList = async (
       if (lastMessage) {
         connection.content = lastMessage.content;
         connection.createdAt = lastMessage.createdAt;
+        const timeAndDate = formattedTime(lastMessage.createdAt);
+        connection.time = timeAndDate.showTime;
+        connection.date = timeAndDate.showDate;
       }
     });
 
@@ -235,13 +244,17 @@ export const getChat = async (req: Request, res: Response): Promise<any> => {
       },
     });
 
-    // mark the msg as sent
-    messages.forEach((message) => {
+    // marking the msg, So we can differentiate between sent and received when displaying
+    messages.forEach((message:any) => {
       if (message.senderId === senderId) {
-        message.status = "sent";
+        message.statusForUI = "sent";
       } else {
-        message.status = "received";
+        message.statusForUI = "received";
       }
+
+      const timeAndDate = formattedTime(message.createdAt);
+      message.time = timeAndDate.showTime;
+      message.date = timeAndDate.showDate;
     });
 
     // mark the msg as read
