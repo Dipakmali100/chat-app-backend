@@ -19,9 +19,9 @@ export default function formattedTime(time: Date) {
         showDate: "",
     }
 
-    if (date.toUTCString() === today.toUTCString()) {
+    if (date.getUTCDate() === today.getUTCDate() && date.getUTCMonth() === today.getUTCMonth() && date.getUTCFullYear() === today.getUTCFullYear()) {
         timeAndDate.showDate = "Today";
-    } else if (date.toUTCString() === yesterday.toUTCString()) {
+    } else if (date.getUTCDate() === yesterday.getUTCDate() && date.getUTCMonth() === yesterday.getUTCMonth() && date.getUTCFullYear() === yesterday.getUTCFullYear()) {
         timeAndDate.showDate = "Yesterday";
     } else {
         timeAndDate.showDate = date.getUTCDate() + "/" + (date.getUTCMonth() + 1) + "/" + date.getUTCFullYear();

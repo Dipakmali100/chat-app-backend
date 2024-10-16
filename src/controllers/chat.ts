@@ -45,6 +45,8 @@ export const getFriendList = async (
         username: connection.secondUser.username,
         pendingMessages: 0,
         content: "",
+        status: "",
+        statusForUI: "",
         imgUrl: connection.secondUser.imgUrl,
         time: timeAndDate.showTime,
         date: timeAndDate.showDate,
@@ -119,6 +121,7 @@ export const getFriendList = async (
             senderId: true,
             receiverId: true,
             content: true,
+            status: true,
             createdAt: true,
           },
         });
@@ -136,6 +139,12 @@ export const getFriendList = async (
       );
       if (lastMessage) {
         connection.content = lastMessage.content;
+        connection.status = lastMessage.status;
+        if(lastMessage.senderId === userId){
+          connection.statusForUI = "sent";
+        }else{
+          connection.statusForUI = "received";
+        }
         connection.createdAt = lastMessage.createdAt;
         const timeAndDate = formattedTime(lastMessage.createdAt);
         connection.time = timeAndDate.showTime;

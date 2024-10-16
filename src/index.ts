@@ -15,7 +15,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "http://192.168.0.107:5173"],
+    // origin: "*",
     methods: ["GET", "POST"],
     credentials: true,
   })
@@ -39,7 +40,8 @@ server.listen(PORT, () => {
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "http://192.168.0.107:5173"],
+    // origin: "*",
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -50,7 +52,7 @@ const users: { [key: string]: string } = {};
 io.on("connection", async (socket) => {
   // Assume users authenticate with a unique `userId`
   const userId = socket.handshake.query.userId as string | undefined;
-
+  
   // Check if `userId` exists and is valid
   if (userId) {
     // Mark the user as online
