@@ -50,7 +50,7 @@ export const getFriendList = async (
         imgUrl: connection.secondUser.imgUrl,
         time: timeAndDate.showTime,
         date: timeAndDate.showDate,
-        createdAt: connection.createdAt
+        createdAt: connection.createdAt,
       };
     });
 
@@ -140,9 +140,9 @@ export const getFriendList = async (
       if (lastMessage) {
         connection.content = lastMessage.content;
         connection.status = lastMessage.status;
-        if(lastMessage.senderId === userId){
+        if (lastMessage.senderId === userId) {
           connection.statusForUI = "sent";
-        }else{
+        } else {
           connection.statusForUI = "received";
         }
         connection.createdAt = lastMessage.createdAt;
@@ -254,7 +254,7 @@ export const getChat = async (req: Request, res: Response): Promise<any> => {
     });
 
     // marking the msg, So we can differentiate between sent and received when displaying
-    messages.forEach((message:any) => {
+    messages.forEach((message: any) => {
       if (message.senderId === senderId) {
         message.statusForUI = "sent";
       } else {
@@ -296,12 +296,12 @@ export const sendMessage = async (
   res: Response
 ): Promise<any> => {
   try {
-    const senderId:any = req.user?.id;
+    const senderId: any = req.user?.id;
 
     const body: any = req.body;
     const { receiverId, content } = body;
 
-    if(!senderId){
+    if (!senderId) {
       return res.status(400).json({
         success: false,
         message: "User is not logged in",
@@ -315,10 +315,10 @@ export const sendMessage = async (
       });
     }
 
-    if(receiverId === senderId){
+    if (receiverId === senderId) {
       return res.status(400).json({
         success: false,
-        message: "You can't send message to yourself",  
+        message: "You can't send message to yourself",
       });
     }
 
@@ -344,7 +344,7 @@ export const sendMessage = async (
       });
     }
 
-    const DateTime:any = DateInIST();
+    const DateTime: any = DateInIST();
 
     const message = await client.message.create({
       data: {

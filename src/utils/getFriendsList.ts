@@ -1,6 +1,6 @@
 import client from "./prismaClient";
 
-export default async function getFriendList(userId: number) {
+export default async function getFriendsList(userId: number) {
     const friendList = await client.connection.findMany({
         where: {
             firstUserId: userId,

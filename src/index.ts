@@ -6,8 +6,7 @@ import morgan from "morgan";
 import AuthRouter from "./routes/auth";
 import ChatRouter from "./routes/chat";
 import ConnectionRouter from "./routes/connection";
-import client from "./utils/prismaClient";
-import getFriendList from "./utils/getFriendList";
+import getFriendsList from "./utils/getFriendsList";
 
 const PORT = process.env.PORT || 3000;
 const app = express();
@@ -60,7 +59,7 @@ io.on("connection", async (socket) => {
     console.log(`${userId} is online with socket id: ${socket.id}`);
     console.log("Online users: ", users);
 
-    const friendList = await getFriendList(Number(userId));
+    const friendList = await getFriendsList(Number(userId));
     console.log(friendList);
 
     // Notify user his already online friends
@@ -89,7 +88,24 @@ io.on("connection", async (socket) => {
         io.to(users[data.receiverId]).emit("newMessage", {
           senderId: data.senderId,
         });
+        setTimeout(() => {
+          io.to(users[data.senderId]).emit("newMessage", {
+            senderId: data.receiverId,
+          });
+        },500);
         console.log("Message sent to: ", data.receiverId, " with socket id: ", users[data.receiverId]);
+      }
+    });
+
+    // Handle chatOpened event
+    socket.on("chatOpened", (data) => {
+      console.log("Chat opened with: ", data.receiverId, " with socket id: ", users[data.receiverId]);
+      if (users[data.receiverId]) {
+        setTimeout(() => {
+          io.to(users[data.receiverId]).emit("newMessage", {
+            senderId: data.senderId,
+          });
+        },500);
       }
     });
 
