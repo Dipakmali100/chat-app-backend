@@ -126,3 +126,40 @@ export const verify = async (req: Request, res: Response): Promise<any> => {
     });
   }
 };
+
+export const uniqueUsername = async (req: Request, res: Response): Promise<any> => {
+  try{
+    const { username } = req.body;
+
+    if(!username){
+      return res.status(200).json({
+        success: false,
+        message: "Please enter username",
+      });
+    }
+
+    const userExists = await client.user.findUnique({
+      where: {
+        username,
+      },
+    });
+
+    if (userExists) {
+      return res.status(200).json({
+        success: false,
+        message: "Username already exists",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Username is unique",
+    });
+  }catch(err){
+    console.error(err);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+}
