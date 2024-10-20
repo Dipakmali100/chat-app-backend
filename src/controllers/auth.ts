@@ -16,7 +16,7 @@ export const register = async (req: Request, res: Response): Promise<any> => {
       });
     }
 
-    username = username.toLowerCase();
+    username = username.toLowerCase().trim();
 
     const userExists = await client.user.findUnique({
       where: {
@@ -110,12 +110,27 @@ export const verify = async (req: Request, res: Response): Promise<any> => {
   try {
     const { id, username }: any = req.user;
 
+    const userExists = await client.user.findUnique({
+      where: {
+        id,
+        username
+      },
+    });
+
+    if (!userExists) {
+      return res.status(200).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
     return res.status(200).json({
       success: true,
       message: "User verified successfully",
       data: {
         userId: id,
-        username
+        username,
+        imgUrl: userExists.imgUrl,
       },
     });
   } catch (err) {
@@ -154,6 +169,48 @@ export const uniqueUsername = async (req: Request, res: Response): Promise<any> 
     return res.status(200).json({
       success: true,
       message: "Username is unique",
+    });
+  }catch(err){
+    console.error(err);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+}
+
+export const changeAvatar = async (req: Request, res: Response): Promise<any> => {
+  try{
+    const userId = req.user?.id;
+    const { imgUrl } = req.body;
+
+    if(!userId){
+      return res.status(404).json({
+        success: false,
+        message: "User is not logged in",
+      });
+    }
+
+    if(!imgUrl){
+      return res.status(400).json({
+        success: false,
+        message: "Image URL is required",
+      });
+    }
+
+    const user = await client.user.update({
+      where: {
+        id: Number(userId)
+      },
+      data: {
+        imgUrl : imgUrl
+      }
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Avatar changed successfully",
+      data: user
     });
   }catch(err){
     console.error(err);

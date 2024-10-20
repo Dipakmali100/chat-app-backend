@@ -299,7 +299,10 @@ export const sendMessage = async (
     const senderId: any = req.user?.id;
 
     const body: any = req.body;
-    const { receiverId, content } = body;
+    const { receiverId } = body;
+    let { content } = body;
+
+    content = content.trim();
 
     if (!senderId) {
       return res.status(400).json({
