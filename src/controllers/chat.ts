@@ -33,6 +33,7 @@ export const getFriendList = async (
             imgUrl: true,
           },
         },
+        chatStarted: true,
         createdAt: true,
       },
     });
@@ -47,6 +48,7 @@ export const getFriendList = async (
         content: "",
         status: "",
         statusForUI: "",
+        chatStarted: connection.chatStarted,
         imgUrl: connection.secondUser.imgUrl,
         time: timeAndDate.showTime,
         date: timeAndDate.showDate,
@@ -371,6 +373,73 @@ export const sendMessage = async (
       success: true,
       message: "Message sent successfully",
       data: message,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
+export const deleteChat = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const userId: any = req.user?.id;
+    const { friendId }: any = req.body;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User is not logged in",
+      });
+    }
+
+    if (!friendId) {
+      return res.status(400).json({
+        success: false,
+        message: "friendId is required",
+      });
+    }
+
+    const response = await client.message.deleteMany({
+      where: {
+        OR: [
+          {
+            senderId: userId,
+            receiverId: friendId,
+          },
+          {
+            senderId: friendId,
+            receiverId: userId,
+          },
+        ],
+      },
+    });
+
+    if(response.count > 0){
+      await client.connection.updateMany({
+        where: {
+          OR: [
+            {
+              firstUserId: userId,
+              secondUserId: friendId,
+            },
+            {
+              firstUserId: friendId,
+              secondUserId: userId,
+            },
+          ],
+        },
+        data: {
+          chatStarted: true,
+        }
+      })
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Chat deleted successfully",
     });
   } catch (error) {
     console.log(error);

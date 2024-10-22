@@ -30,6 +30,7 @@ model Connection {
   id            Int       @id @default(autoincrement())
   firstUserId   Int 
   secondUserId  Int
+  chatStarted   Boolean   @default(false)
   createdAt     DateTime  @default(now())
   firstUser     User      @relation("ConnectionFirstUser", fields: [firstUserId], references: [id])
   secondUser    User      @relation("ConnectionSecondUser", fields: [secondUserId], references: [id])
