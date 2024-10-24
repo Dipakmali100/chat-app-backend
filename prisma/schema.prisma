@@ -18,6 +18,7 @@ model User {
   username          String      @unique
   password          String
   imgUrl            String
+  verified          Boolean     @default(false)
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @default(now())
   firstConnections  Connection[] @relation("ConnectionFirstUser")

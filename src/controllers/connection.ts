@@ -36,6 +36,7 @@ export const searchUser = async (req: Request, res: Response): Promise<any> => {
         id: true,
         username: true,
         imgUrl: true,
+        verified: true,
       },
       take: 3,
     });

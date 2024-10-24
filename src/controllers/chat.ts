@@ -31,6 +31,7 @@ export const getFriendList = async (
             id: true,
             username: true,
             imgUrl: true,
+            verified: true,
           },
         },
         chatStarted: true,
@@ -44,6 +45,7 @@ export const getFriendList = async (
       return {
         senderId: connection.secondUser.id,
         username: connection.secondUser.username,
+        verified: connection.secondUser.verified,
         pendingMessages: 0,
         content: "",
         status: "",
@@ -417,7 +419,7 @@ export const deleteChat = async (req: Request, res: Response): Promise<any> => {
       },
     });
 
-    if(response.count > 0){
+    if (response.count > 0) {
       await client.connection.updateMany({
         where: {
           OR: [
@@ -433,8 +435,8 @@ export const deleteChat = async (req: Request, res: Response): Promise<any> => {
         },
         data: {
           chatStarted: true,
-        }
-      })
+        },
+      });
     }
 
     return res.status(200).json({

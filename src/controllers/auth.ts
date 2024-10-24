@@ -94,6 +94,7 @@ export const login = async (req: Request, res: Response): Promise<any> => {
         userId: user.id,
         username: user.username,
         imgUrl: user.imgUrl,
+        verified: user.verified,
         token,
       },
     });
@@ -131,6 +132,7 @@ export const verify = async (req: Request, res: Response): Promise<any> => {
         userId: id,
         username,
         imgUrl: userExists.imgUrl,
+        verified: userExists.verified
       },
     });
   } catch (err) {
