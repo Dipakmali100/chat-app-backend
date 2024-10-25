@@ -37,6 +37,8 @@ export const register = async (req: Request, res: Response): Promise<any> => {
         username,
         password,
         imgUrl,
+        verified: false,
+        verificationDate: DateTime,
         createdAt: DateTime,
         updatedAt: DateTime,
       },
