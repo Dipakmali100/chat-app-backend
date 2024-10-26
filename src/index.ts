@@ -15,8 +15,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
-    // origin: ["http://localhost:5173", "http://192.168.0.107:5173"],
-    origin: "*",
+    origin: ["http://localhost:5173", "http://192.168.0.107:5173", "https://chatnow.dipakmali.tech", "https://www.chatnow.dipakmali.tech"],
+    // origin: "*",
     methods: ["GET", "POST"],
     credentials: true,
   })
@@ -41,8 +41,8 @@ server.listen(PORT, () => {
 
 const io = new Server(server, {
   cors: {
-    // origin: ["http://localhost:5173", "http://192.168.0.107:5173"],
-    origin: "*",
+    origin: ["http://localhost:5173", "http://192.168.0.107:5173", "https://chatnow.dipakmali.tech", "https://www.chatnow.dipakmali.tech"],
+    // origin: "*",
     methods: ["GET", "POST"],
     credentials: true,
   },
