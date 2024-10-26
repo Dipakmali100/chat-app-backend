@@ -3,11 +3,13 @@ import crypto from "crypto";
 import Razorpay from "razorpay"
 import client from "../utils/prismaClient";
 import DateInIST from "../constants/DateInIST";
+import { PAYMENT_AMOUNT } from "../constants/PAYMENT_AMOUNT";
 
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID || "",
     key_secret: process.env.RAZORPAY_SECRET_KEY
 })
+
 export const createOrder = async (req: Request, res: Response): Promise<any> => {
     try{
         const {amount, currency, receipt} = req.body;
@@ -19,7 +21,7 @@ export const createOrder = async (req: Request, res: Response): Promise<any> => 
             })
         }
 
-        if(amount !== 1000){
+        if(amount !== PAYMENT_AMOUNT.VERIFICATION*100){
             return res.status(400).json({
                 success: false,
                 message: "Invalid amount"
@@ -27,7 +29,7 @@ export const createOrder = async (req: Request, res: Response): Promise<any> => 
         }
 
         const order = await razorpay.orders.create({
-            amount,
+            amount: PAYMENT_AMOUNT.VERIFICATION*100,
             currency,
             receipt
         });
