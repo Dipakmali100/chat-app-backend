@@ -111,10 +111,6 @@ export const login = async (req: Request, res: Response): Promise<any> => {
 
 export const verify = async (req: Request, res: Response): Promise<any> => {
   try {
-    if (!req.user) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
     const { id, username }: any = req.user;
 
     const userExists = await client.user.findUnique({
@@ -195,10 +191,6 @@ export const changeAvatar = async (
   res: Response
 ): Promise<any> => {
   try {
-    if (!req.user) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
     const userId = req.user?.id;
     const { imgUrl } = req.body;
 
