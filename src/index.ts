@@ -8,6 +8,7 @@ import ChatRouter from "./routes/chat";
 import ConnectionRouter from "./routes/connection";
 import PaymentRouter from "./routes/payment";
 import getFriendsList from "./utils/getFriendsList";
+import axios from "axios";
 
 const PORT = process.env.PORT || 3000;
 const app = express();
@@ -32,6 +33,21 @@ app.use("/api/v1/payment", PaymentRouter);
 app.get("/", (req, res) => {
   res.send("Server is running...");
 });
+
+// Function to keep the server awake
+const keepServerAwake = () => {
+  setInterval(async () => {
+    try {
+      await axios.get(`https://chatnow-backend.dipakmali.tech`); // Adjust this URL if needed
+      console.log('Pinged server to keep it awake');
+    } catch (error) {
+      console.error('Error pinging server:', error);
+    }
+  }, 10 * 60 * 1000); // 10 minutes in milliseconds
+};
+
+// Call the function to start pinging
+keepServerAwake();
 
 const server = http.createServer(app);
 
