@@ -111,12 +111,16 @@ export const login = async (req: Request, res: Response): Promise<any> => {
 
 export const verify = async (req: Request, res: Response): Promise<any> => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
     const { id, username }: any = req.user;
 
     const userExists = await client.user.findUnique({
       where: {
         id,
-        username
+        username,
       },
     });
 
@@ -134,7 +138,7 @@ export const verify = async (req: Request, res: Response): Promise<any> => {
         userId: id,
         username,
         imgUrl: userExists.imgUrl,
-        verified: userExists.verified
+        verified: userExists.verified,
       },
     });
   } catch (err) {
@@ -146,11 +150,14 @@ export const verify = async (req: Request, res: Response): Promise<any> => {
   }
 };
 
-export const uniqueUsername = async (req: Request, res: Response): Promise<any> => {
-  try{
+export const uniqueUsername = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
     const { username } = req.body;
 
-    if(!username){
+    if (!username) {
       return res.status(200).json({
         success: false,
         message: "Please enter username",
@@ -174,28 +181,35 @@ export const uniqueUsername = async (req: Request, res: Response): Promise<any> 
       success: true,
       message: "Username is unique",
     });
-  }catch(err){
+  } catch (err) {
     console.error(err);
     return res.status(500).json({
       success: false,
       message: "Something went wrong",
     });
   }
-}
+};
 
-export const changeAvatar = async (req: Request, res: Response): Promise<any> => {
-  try{
+export const changeAvatar = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
     const userId = req.user?.id;
     const { imgUrl } = req.body;
 
-    if(!userId){
+    if (!userId) {
       return res.status(404).json({
         success: false,
         message: "User is not logged in",
       });
     }
 
-    if(!imgUrl){
+    if (!imgUrl) {
       return res.status(400).json({
         success: false,
         message: "Image URL is required",
@@ -204,23 +218,23 @@ export const changeAvatar = async (req: Request, res: Response): Promise<any> =>
 
     const user = await client.user.update({
       where: {
-        id: Number(userId)
+        id: Number(userId),
       },
       data: {
-        imgUrl : imgUrl
-      }
+        imgUrl: imgUrl,
+      },
     });
 
     return res.status(200).json({
       success: true,
       message: "Avatar changed successfully",
-      data: user
+      data: user,
     });
-  }catch(err){
+  } catch (err) {
     console.error(err);
     return res.status(500).json({
       success: false,
       message: "Something went wrong",
     });
   }
-}
+};
