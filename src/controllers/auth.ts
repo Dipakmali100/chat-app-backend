@@ -111,7 +111,7 @@ export const login = async (req: Request, res: Response): Promise<any> => {
 
 export const verify = async (req: Request, res: Response): Promise<any> => {
   try {
-    const { id, username }: any = req.user;
+    const { id, username }: any = req?.user;
 
     const userExists = await client.user.findUnique({
       where: {
@@ -185,7 +185,7 @@ export const uniqueUsername = async (req: Request, res: Response): Promise<any> 
 
 export const changeAvatar = async (req: Request, res: Response): Promise<any> => {
   try{
-    const userId = req.user?.id;
+    const userId = req?.user?.id;
     const { imgUrl } = req.body;
 
     if(!userId){
