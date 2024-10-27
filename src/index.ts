@@ -7,6 +7,7 @@ import AuthRouter from "./routes/auth";
 import ChatRouter from "./routes/chat";
 import ConnectionRouter from "./routes/connection";
 import PaymentRouter from "./routes/payment";
+import TrafficRouter from "./routes/traffic";
 import getFriendsList from "./utils/getFriendsList";
 import axios from "axios";
 
@@ -29,6 +30,7 @@ app.use("/api/v1/auth", AuthRouter);
 app.use("/api/v1/chat", ChatRouter);
 app.use("/api/v1/connection", ConnectionRouter);
 app.use("/api/v1/payment", PaymentRouter);
+app.use("/api/v1/traffic", TrafficRouter);
 
 app.get("/", (req, res) => {
   res.send("Server is running...");
