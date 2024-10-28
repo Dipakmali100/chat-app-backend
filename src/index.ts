@@ -117,6 +117,19 @@ io.on("connection", async (socket) => {
       }
     });
 
+    // Handle message delete event
+    socket.on("deleteMessage", (data) => {
+      if (users[data.receiverId]) {
+        setTimeout(() => {
+          io.to(users[data.receiverId]).emit("deleteMessage", {
+            senderId: data.senderId,
+            // messageId: data.messageId,
+          });
+          console.log("Message deleted from: ", data.receiverId, " with socket id: ", users[data.receiverId]);
+        }, 1000);
+      }
+    });
+
     // Handle chatOpened event
     socket.on("chatOpened", (data) => {
       console.log("Chat opened with: ", data.receiverId, " with socket id: ", users[data.receiverId]);

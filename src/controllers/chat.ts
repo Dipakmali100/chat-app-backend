@@ -451,3 +451,64 @@ export const deleteChat = async (req: Request, res: Response): Promise<any> => {
     });
   }
 };
+
+export const deleteMessage = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const userId: any = req.user?.id;
+    const messageId : number = req.body.messageId;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User is not logged in",
+      });
+    }
+
+    if (!messageId) {
+      return res.status(400).json({
+        success: false,
+        message: "messageId is required",
+      });
+    }
+    const isMessageSentByUser = await client.message.findUnique({
+      where: { 
+        id: messageId, 
+        senderId: userId 
+      },
+    });
+
+    if (!isMessageSentByUser) {
+      return res.status(400).json({
+        success: false,
+        message: "Message is not sent by the user",
+      });
+    }
+
+    const response = await client.message.delete({
+      where: {
+        id: messageId,
+      },
+    });
+
+    if (!response) {
+      return res.status(400).json({
+        success: false,
+        message: "Failed to delete message",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Message deleted successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+};
