@@ -40,7 +40,7 @@ export const getFriendList = async (
     });
 
     // Reshape the result to remove the "secondUser" nesting
-    const formattedConnections = connections.map((connection) => {
+    const formattedConnections = connections.map((connection: any) => {
       const timeAndDate = formattedTime(connection.createdAt);
       return {
         senderId: connection.secondUser.id,
@@ -79,7 +79,7 @@ export const getFriendList = async (
 
     // Format the pending messages
     let formattedPendingMessages: { [key: string]: number } = {};
-    pendingMessages.forEach((message) => {
+    pendingMessages.forEach((message: any) => {
       formattedPendingMessages[message.senderId] = message._count.senderId;
     });
 
@@ -95,7 +95,7 @@ export const getFriendList = async (
     });
 
     // Add the pending messages to the connections
-    formattedConnections.forEach((connection) => {
+    formattedConnections.forEach((connection: any) => {
       if (formattedPendingMessages[connection.senderId]) {
         connection.pendingMessages =
           formattedPendingMessages[connection.senderId];
@@ -104,7 +104,7 @@ export const getFriendList = async (
 
     // Find the last message of each connection
     const getLastMessageOfEachConnection = await Promise.all(
-      formattedConnections.map(async (connection) => {
+      formattedConnections.map(async (connection: any) => {
         return await client.message.findFirst({
           where: {
             OR: [
@@ -133,7 +133,7 @@ export const getFriendList = async (
     );
 
     // Add the last message to the connections
-    formattedConnections.forEach((connection) => {
+    formattedConnections.forEach((connection: any) => {
       const lastMessage = getLastMessageOfEachConnection.find(
         (message) =>
           (message?.senderId === connection.senderId &&
@@ -157,7 +157,7 @@ export const getFriendList = async (
     });
 
     // Sort in descending order of createdAt along with type for typescript
-    formattedConnections.sort((a, b) => {
+    formattedConnections.sort((a: any, b: any) => {
       if (a.createdAt < b.createdAt) {
         return 1;
       }
