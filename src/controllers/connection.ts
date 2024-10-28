@@ -53,7 +53,7 @@ export const searchUser = async (req: Request, res: Response): Promise<any> => {
       where: {
         firstUserId: userId,
         secondUserId: {
-          in: result.map((user) => user.id),
+          in: result.map((user: any) => user.id),
         },
       },
       select: {
@@ -66,11 +66,11 @@ export const searchUser = async (req: Request, res: Response): Promise<any> => {
       },
     });
 
-    result = result.map((user) => {
+    result = result.map((user: any) => {
       return {
         ...user,
         isConnected: connections.some(
-          (connection) => connection.secondUser.id === user.id
+          (connection: any) => connection.secondUser.id === user.id
         ),
       };
     });
@@ -120,8 +120,8 @@ export const connect = async (req: Request, res: Response): Promise<any> => {
     });
 
     // Extracting the usernames
-    const firstUser = users.find((user) => user.id === Number(userId));
-    const secondUser = users.find((user) => user.id === secondUserId);
+    const firstUser = users.find((user: any) => user.id === Number(userId));
+    const secondUser = users.find((user: any) => user.id === secondUserId);
 
     if (users.length !== 2 || !firstUser || !secondUser) {
       return res.status(400).json({
