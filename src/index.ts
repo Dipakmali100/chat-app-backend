@@ -107,6 +107,7 @@ io.on("connection", async (socket) => {
       if (users[data.receiverId]) {
         io.to(users[data.receiverId]).emit("newMessage", {
           senderId: data.senderId,
+          isNewMessage: true
         });
         setTimeout(() => {
           io.to(users[data.senderId]).emit("newMessage", {
