@@ -143,6 +143,17 @@ io.on("connection", async (socket) => {
       }
     });
 
+    // Handle typing event
+    socket.on("typing", (data) => {
+      if (users[data.receiverId]) {
+        io.to(users[data.receiverId]).emit("typing", {
+          senderId: data.senderId,
+          isTyping: data.isTyping
+        });
+        console.log("Typing event sent to: ", data.receiverId, " with socket id: ", users[data.receiverId]);
+      }
+    });
+
     // Handle disconnection
     socket.on("disconnect", () => {
       console.log(`${userId} disconnected with socket id: ${socket.id}`);
@@ -158,6 +169,8 @@ io.on("connection", async (socket) => {
         }
       });
     });
+
+
   } else {
     console.log("User ID is undefined");
     // You can decide how to handle cases where `userId` is missing
