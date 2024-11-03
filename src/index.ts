@@ -112,6 +112,7 @@ io.on("connection", async (socket) => {
         setTimeout(() => {
           io.to(users[data.senderId]).emit("newMessage", {
             senderId: data.receiverId,
+            isNewMessage: false
           });
         },1000);
         console.log("Message sent to: ", data.receiverId, " with socket id: ", users[data.receiverId]);
@@ -138,6 +139,7 @@ io.on("connection", async (socket) => {
         setTimeout(() => {
           io.to(users[data.receiverId]).emit("newMessage", {
             senderId: data.senderId,
+            isNewMessage: false
           });
         },1000);
       }
