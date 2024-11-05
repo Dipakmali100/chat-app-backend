@@ -17,7 +17,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://192.168.0.107:5173", "https://chatnow.dipakmali.tech", "https://www.chatnow.dipakmali.tech"],
+    origin: [
+      "http://localhost:5173",
+      "http://192.168.0.107:5173",
+      "https://chatnow.dipakmali.tech",
+      "https://www.chatnow.dipakmali.tech",
+    ],
     // origin: "*",
     methods: ["GET", "POST"],
     credentials: true,
@@ -41,9 +46,9 @@ const keepServerAwake = () => {
   setInterval(async () => {
     try {
       await axios.get(`https://chatnow-backend.dipakmali.tech`); // Adjust this URL if needed
-      console.log('Pinged server to keep it awake');
+      console.log("Pinged server to keep it awake");
     } catch (error) {
-      console.error('Error pinging server:', error);
+      console.error("Error pinging server:", error);
     }
   }, 10 * 60 * 1000); // 10 minutes in milliseconds
 };
@@ -59,7 +64,12 @@ server.listen(PORT, () => {
 
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173", "http://192.168.0.107:5173", "https://chatnow.dipakmali.tech", "https://www.chatnow.dipakmali.tech"],
+    origin: [
+      "http://localhost:5173",
+      "http://192.168.0.107:5173",
+      "https://chatnow.dipakmali.tech",
+      "https://www.chatnow.dipakmali.tech",
+    ],
     // origin: "*",
     methods: ["GET", "POST"],
     credentials: true,
@@ -71,7 +81,7 @@ const users: { [key: string]: string } = {};
 io.on("connection", async (socket) => {
   // Assume users authenticate with a unique `userId`
   const userId = socket.handshake.query.userId as string | undefined;
-  
+
   // Check if `userId` exists and is valid
   if (userId) {
     // Mark the user as online
@@ -102,20 +112,39 @@ io.on("connection", async (socket) => {
       }
     });
 
+    // Handle getAlreadyOnlineUsers
+    socket.on("getAlreadyOnlineUsers", async(data) => {
+      const userfriendList = await getFriendsList(Number(data.userId));
+      const alreadyOnlineUsers: { [key: string]: string } = {};
+      userfriendList.forEach((friend: any) => {
+        if (users[friend.secondUser.id]) {
+          alreadyOnlineUsers[friend.secondUser.id] =
+          users[friend.secondUser.id];
+        }
+      });
+      io.to(data.socketId).emit("alreadyOnlineUsers", alreadyOnlineUsers);
+    });
+
     // Handle chat and friend list updates
     socket.on("sendMessage", (data) => {
       if (users[data.receiverId]) {
         io.to(users[data.receiverId]).emit("newMessage", {
           senderId: data.senderId,
-          isNewMessage: true
+          isNewMessage: data.isNewMessage,
+          isDisconnect: data.isDisconnect,
         });
         setTimeout(() => {
           io.to(users[data.senderId]).emit("newMessage", {
             senderId: data.receiverId,
-            isNewMessage: false
+            isNewMessage: false,
           });
-        },1000);
-        console.log("Message sent to: ", data.receiverId, " with socket id: ", users[data.receiverId]);
+        }, 1000);
+        console.log(
+          "Message sent to: ",
+          data.receiverId,
+          " with socket id: ",
+          users[data.receiverId]
+        );
       }
     });
 
@@ -127,21 +156,31 @@ io.on("connection", async (socket) => {
             senderId: data.senderId,
             // messageId: data.messageId,
           });
-          console.log("Message deleted from: ", data.receiverId, " with socket id: ", users[data.receiverId]);
+          console.log(
+            "Message deleted from: ",
+            data.receiverId,
+            " with socket id: ",
+            users[data.receiverId]
+          );
         }, 1000);
       }
     });
 
     // Handle chatOpened event
     socket.on("chatOpened", (data) => {
-      console.log("Chat opened with: ", data.receiverId, " with socket id: ", users[data.receiverId]);
+      console.log(
+        "Chat opened with: ",
+        data.receiverId,
+        " with socket id: ",
+        users[data.receiverId]
+      );
       if (users[data.receiverId]) {
         setTimeout(() => {
           io.to(users[data.receiverId]).emit("newMessage", {
             senderId: data.senderId,
-            isNewMessage: false
+            isNewMessage: false,
           });
-        },1000);
+        }, 1000);
       }
     });
 
@@ -150,9 +189,14 @@ io.on("connection", async (socket) => {
       if (users[data.receiverId]) {
         io.to(users[data.receiverId]).emit("typing", {
           senderId: data.senderId,
-          isTyping: data.isTyping
+          isTyping: data.isTyping,
         });
-        console.log("Typing event sent to: ", data.receiverId, " with socket id: ", users[data.receiverId]);
+        console.log(
+          "Typing event sent to: ",
+          data.receiverId,
+          " with socket id: ",
+          users[data.receiverId]
+        );
       }
     });
 
@@ -171,8 +215,6 @@ io.on("connection", async (socket) => {
         }
       });
     });
-
-
   } else {
     console.log("User ID is undefined");
     // You can decide how to handle cases where `userId` is missing
