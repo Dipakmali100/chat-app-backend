@@ -252,6 +252,7 @@ export const getChat = async (req: Request, res: Response): Promise<any> => {
         isReply: true,
         replyMsg: {
           select:{
+            id: true,
             msgType: true,
             content: true,
             senderId: true
@@ -294,6 +295,7 @@ export const getChat = async (req: Request, res: Response): Promise<any> => {
       if(!message.isReply){
         delete message.replyMsg;
       }else{
+        message.replyMsgId = message.replyMsg.id;
         message.replyMsgType = message.replyMsg.msgType;
         message.replyMsgContent = message.replyMsg.content;
         message.replyMsgSenderId = message.replyMsg.senderId;
