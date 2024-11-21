@@ -249,8 +249,17 @@ export const getChat = async (req: Request, res: Response): Promise<any> => {
       },
       select: {
         id: true,
+        isReply: true,
+        replyMsg: {
+          select:{
+            msgType: true,
+            content: true,
+            senderId: true
+          }
+        },
         senderId: true,
         receiverId: true,
+        msgType: true,
         content: true,
         status: true,
         createdAt: true,
@@ -281,6 +290,17 @@ export const getChat = async (req: Request, res: Response): Promise<any> => {
       },
     });
 
+    messages.forEach((message: any) => {
+      if(!message.isReply){
+        delete message.replyMsg;
+      }else{
+        message.replyMsgType = message.replyMsg.msgType;
+        message.replyMsgContent = message.replyMsg.content;
+        message.replyMsgSenderId = message.replyMsg.senderId;
+        delete message.replyMsg;
+      }
+    })
+
     return res.status(200).json({
       success: true,
       message: "Chat fetched successfully",
@@ -303,7 +323,7 @@ export const sendMessage = async (
     const senderId: any = req.user?.id;
 
     const body: any = req.body;
-    const { receiverId } = body;
+    const { isReply, replyMsgId, receiverId } = body;
     let { content } = body;
 
     content = content.trim();
@@ -355,6 +375,8 @@ export const sendMessage = async (
 
     const message = await client.message.create({
       data: {
+        isReply,
+        replyMsgId,
         senderId,
         receiverId,
         content,
@@ -500,9 +522,27 @@ export const deleteMessage = async (
       });
     }
 
+    await client.connection.updateMany({
+      where: {
+        OR: [
+          {
+            firstUserId: response.senderId,
+            secondUserId: response.receiverId,
+          },
+          {
+            firstUserId: response.receiverId,
+            secondUserId: response.senderId,
+          },
+        ],
+      },
+      data: {
+        chatStarted: true,
+      },
+    });
+
     return res.status(200).json({
       success: true,
-      message: "Message deleted successfully",
+      message: "Message deleted successfully"
     });
   } catch (error) {
     console.log(error);

@@ -46,14 +46,20 @@ model Connection {
 
 model Message {
   id            Int       @id @default(autoincrement())
+  isReply       Boolean   @default(false)
+  replyMsgId    Int       @default(1)
   senderId      Int
-  receiverId    Int
+  receiverId    Int 
+  msgType       String    @default("text") // text, image, video, audio, document
   content       String
   status        String
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @default(now())
   sender        User      @relation("MessageSender", fields: [senderId], references: [id])
   receiver      User      @relation("MessageReceiver", fields: [receiverId], references: [id])
+  replyMsg      Message   @relation("MessageReply", fields: [replyMsgId], references: [id])
+
+  replyMessages Message[] @relation("MessageReply")
 }
 
 model Traffic {
