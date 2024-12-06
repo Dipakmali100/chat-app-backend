@@ -173,7 +173,7 @@ export const getFriendList = async (
       data: formattedConnections,
     });
   } catch (error) {
-    console.log(error);
+    console.log("Error in getFriendList: ",error);
     return res.status(500).json({
       success: false,
       message: "Something went wrong",
@@ -251,12 +251,12 @@ export const getChat = async (req: Request, res: Response): Promise<any> => {
         id: true,
         isReply: true,
         replyMsg: {
-          select:{
+          select: {
             id: true,
             msgType: true,
             content: true,
-            senderId: true
-          }
+            senderId: true,
+          },
         },
         senderId: true,
         receiverId: true,
@@ -292,16 +292,16 @@ export const getChat = async (req: Request, res: Response): Promise<any> => {
     });
 
     messages.forEach((message: any) => {
-      if(!message.isReply){
+      if (!message.isReply) {
         delete message.replyMsg;
-      }else{
+      } else {
         message.replyMsgId = message.replyMsg.id;
         message.replyMsgType = message.replyMsg.msgType;
         message.replyMsgContent = message.replyMsg.content;
         message.replyMsgSenderId = message.replyMsg.senderId;
         delete message.replyMsg;
       }
-    })
+    });
 
     return res.status(200).json({
       success: true,
@@ -310,6 +310,155 @@ export const getChat = async (req: Request, res: Response): Promise<any> => {
     });
   } catch (error) {
     console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
+export const streamChat = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const userId: any = req.user?.id;
+    const { limit, lastMessageId, friendId } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User is not logged in",
+      });
+    }
+
+    if (!limit || !lastMessageId || !friendId) {
+      return res.status(400).json({
+        success: false,
+        message: "Provide the required fields",
+      });
+    }
+
+    // check if they are connected
+    const isConnected = await client.connection.findMany({
+      where: {
+        OR: [
+          {
+            firstUserId: userId,
+            secondUserId: friendId,
+          },
+          {
+            firstUserId: friendId,
+            secondUserId: userId,
+          },
+        ],
+      },
+    });
+
+    if (!isConnected || isConnected.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "User is not connected",
+      });
+    }
+
+    const messages = await client.message.findMany({
+      where: {
+        AND: [
+          {
+            id: {
+              lte: lastMessageId,
+            },
+          },
+          {
+            OR: [
+              {
+                senderId: userId,
+                receiverId: friendId,
+              },
+              {
+                senderId: friendId,
+                receiverId: userId,
+              },
+            ],
+          },
+        ],
+      },
+      take: limit,
+      orderBy: {
+        createdAt: "desc",
+      },
+      select: {
+        id: true,
+        isReply: true,
+        replyMsg: {
+          select: {
+            id: true,
+            msgType: true,
+            content: true,
+            senderId: true,
+          },
+        },
+        senderId: true,
+        receiverId: true,
+        msgType: true,
+        content: true,
+        status: true,
+        createdAt: true,
+      },
+    });
+
+    // marking the msg, So we can differentiate between sent and received when displaying
+    messages.forEach((message: any) => {
+      if (message.senderId === userId) {
+        message.statusForUI = "sent";
+      } else {
+        message.statusForUI = "received";
+      }
+
+      const timeAndDate = formattedTime(message.createdAt);
+      message.time = timeAndDate.showTime;
+      message.date = timeAndDate.showDate;
+    });
+
+    // mark the msg as read
+    await client.message.updateMany({
+      where: {
+        senderId: friendId,
+        receiverId: userId,
+      },
+      data: {
+        status: "seen",
+      },
+    });
+
+    messages.forEach((message: any) => {
+      if (!message.isReply) {
+        delete message.replyMsg;
+      } else {
+        message.replyMsgId = message.replyMsg.id;
+        message.replyMsgType = message.replyMsg.msgType;
+        message.replyMsgContent = message.replyMsg.content;
+        message.replyMsgSenderId = message.replyMsg.senderId;
+        delete message.replyMsg;
+      }
+    });
+
+    // Sort in asscending order of createdAt along with type for typescript
+    messages.sort((a: any, b: any) => {
+      if (a.id > b.id) {
+        return 1;
+      }
+      if (a.id < b.id) {
+        return -1;
+      }
+      return 0;
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Chat fetched successfully",
+      data: messages,
+    });
+  } catch (err) {
+    console.log(err);
     return res.status(500).json({
       success: false,
       message: "Something went wrong",
@@ -482,7 +631,7 @@ export const deleteMessage = async (
 ): Promise<any> => {
   try {
     const userId: any = req.user?.id;
-    const messageId : number = req.body.messageId;
+    const messageId: number = req.body.messageId;
 
     if (!userId) {
       return res.status(400).json({
@@ -498,9 +647,9 @@ export const deleteMessage = async (
       });
     }
     const isMessageSentByUser = await client.message.findUnique({
-      where: { 
-        id: messageId, 
-        senderId: userId 
+      where: {
+        id: messageId,
+        senderId: userId,
       },
     });
 
@@ -544,7 +693,7 @@ export const deleteMessage = async (
 
     return res.status(200).json({
       success: true,
-      message: "Message deleted successfully"
+      message: "Message deleted successfully",
     });
   } catch (error) {
     console.log(error);
