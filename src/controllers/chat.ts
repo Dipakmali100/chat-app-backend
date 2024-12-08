@@ -173,7 +173,7 @@ export const getFriendList = async (
       data: formattedConnections,
     });
   } catch (error) {
-    console.log("Error in getFriendList: ",error);
+    console.log("Error in getFriendList: ", error);
     return res.status(500).json({
       success: false,
       message: "Something went wrong",
@@ -329,7 +329,7 @@ export const streamChat = async (req: Request, res: Response): Promise<any> => {
       });
     }
 
-    if (!limit || !lastMessageId || !friendId) {
+    if (!limit || lastMessageId===undefined || !friendId) {
       return res.status(400).json({
         success: false,
         message: "Provide the required fields",
@@ -359,51 +359,92 @@ export const streamChat = async (req: Request, res: Response): Promise<any> => {
       });
     }
 
-    const messages = await client.message.findMany({
-      where: {
-        AND: [
-          {
-            id: {
-              lte: lastMessageId,
+    let messages;
+
+    if (lastMessageId === 0) {
+      messages = await client.message.findMany({
+        where: {
+          OR: [
+            {
+              senderId: userId,
+              receiverId: friendId,
+            },
+            {
+              senderId: friendId,
+              receiverId: userId,
+            },
+          ],
+        },
+        take: limit,
+        orderBy: {
+          id: "desc",
+        },
+        select: {
+          id: true,
+          isReply: true,
+          replyMsg: {
+            select: {
+              id: true,
+              msgType: true,
+              content: true,
+              senderId: true,
             },
           },
-          {
-            OR: [
-              {
-                senderId: userId,
-                receiverId: friendId,
-              },
-              {
-                senderId: friendId,
-                receiverId: userId,
-              },
-            ],
-          },
-        ],
-      },
-      take: limit,
-      orderBy: {
-        createdAt: "desc",
-      },
-      select: {
-        id: true,
-        isReply: true,
-        replyMsg: {
-          select: {
-            id: true,
-            msgType: true,
-            content: true,
-            senderId: true,
-          },
+          senderId: true,
+          receiverId: true,
+          msgType: true,
+          content: true,
+          status: true,
+          createdAt: true,
         },
-        senderId: true,
-        receiverId: true,
-        msgType: true,
-        content: true,
-        status: true,
-        createdAt: true,
-      },
-    });
+      });
+    }else{
+      messages = await client.message.findMany({
+        where: {
+          AND: [
+            {
+              id: {
+                lte: lastMessageId,
+              },
+            },
+            {
+              OR: [
+                {
+                  senderId: userId,
+                  receiverId: friendId,
+                },
+                {
+                  senderId: friendId,
+                  receiverId: userId,
+                },
+              ],
+            },
+          ],
+        },
+        take: limit,
+        orderBy: {
+          id: "desc",
+        },
+        select: {
+          id: true,
+          isReply: true,
+          replyMsg: {
+            select: {
+              id: true,
+              msgType: true,
+              content: true,
+              senderId: true,
+            },
+          },
+          senderId: true,
+          receiverId: true,
+          msgType: true,
+          content: true,
+          status: true,
+          createdAt: true,
+        },
+      });
+    }
 
     // marking the msg, So we can differentiate between sent and received when displaying
     messages.forEach((message: any) => {
