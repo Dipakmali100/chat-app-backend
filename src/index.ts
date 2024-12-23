@@ -155,6 +155,7 @@ io.on("connection", async (socket) => {
           io.to(users[data.receiverId]).emit("deleteMessage", {
             senderId: data.senderId,
             messageId: data.messageId,
+            isMessageDeleted: true
           });
           console.log(
             "Message deleted from: ",
