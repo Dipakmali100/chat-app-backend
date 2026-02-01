@@ -14,6 +14,7 @@ import axios from "axios";
 const PORT = process.env.PORT || 3000;
 const FRONTEND_SITE_URL_1 = "https://chat-app-dipak-malis-projects.vercel.app"
 const FRONTEND_SITE_URL_2 = "https://chat-app-six-xi-82.vercel.app"
+const FRONTEND_SITE_URL_3 = "https://chatnow.dipakmali.tech"
 const BACKEND_SITE_URL = "https://chat-app-backend-o0sx.onrender.com"
 const app = express();
 app.use(express.json());
@@ -24,7 +25,8 @@ app.use(
       "http://localhost:5173",
       "http://192.168.0.107:5173",
       FRONTEND_SITE_URL_1,
-      FRONTEND_SITE_URL_2,``
+      FRONTEND_SITE_URL_2,
+      FRONTEND_SITE_URL_3,
     ],
     // origin: "*",
     methods: ["GET", "POST"],
@@ -72,6 +74,7 @@ const io = new Server(server, {
       "http://192.168.0.107:5173",
       FRONTEND_SITE_URL_1,
       FRONTEND_SITE_URL_2,
+      FRONTEND_SITE_URL_3,
     ],
     // origin: "*",
     methods: ["GET", "POST"],
