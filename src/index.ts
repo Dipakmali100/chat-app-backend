@@ -12,6 +12,9 @@ import getFriendsList from "./utils/getFriendsList";
 import axios from "axios";
 
 const PORT = process.env.PORT || 3000;
+const FRONTEND_SITE_URL_1 = "https://chat-app-dipak-malis-projects.vercel.app"
+const FRONTEND_SITE_URL_2 = "https://chat-app-six-xi-82.vercel.app/"
+const BACKEND_SITE_URL = "https://chat-app-backend-o0sx.onrender.com"
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -20,8 +23,8 @@ app.use(
     origin: [
       "http://localhost:5173",
       "http://192.168.0.107:5173",
-      "https://chatnow.dipakmali.tech",
-      "https://www.chatnow.dipakmali.tech",
+      FRONTEND_SITE_URL_1,
+      FRONTEND_SITE_URL_2,``
     ],
     // origin: "*",
     methods: ["GET", "POST"],
@@ -45,7 +48,7 @@ app.get("/", (req, res) => {
 const keepServerAwake = () => {
   setInterval(async () => {
     try {
-      await axios.get(`https://chatnow-backend.dipakmali.tech`); // Adjust this URL if needed
+      await axios.get(`${BACKEND_SITE_URL}`); // Adjust this URL if needed
       console.log("Pinged server to keep it awake");
     } catch (error) {
       console.error("Error pinging server:", error);
@@ -67,8 +70,8 @@ const io = new Server(server, {
     origin: [
       "http://localhost:5173",
       "http://192.168.0.107:5173",
-      "https://chatnow.dipakmali.tech",
-      "https://www.chatnow.dipakmali.tech",
+      FRONTEND_SITE_URL_1,
+      FRONTEND_SITE_URL_2,
     ],
     // origin: "*",
     methods: ["GET", "POST"],
