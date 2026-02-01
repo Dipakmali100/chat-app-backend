@@ -13,7 +13,7 @@ import axios from "axios";
 
 const PORT = process.env.PORT || 3000;
 const FRONTEND_SITE_URL_1 = "https://chat-app-dipak-malis-projects.vercel.app"
-const FRONTEND_SITE_URL_2 = "https://chat-app-six-xi-82.vercel.app/"
+const FRONTEND_SITE_URL_2 = "https://chat-app-six-xi-82.vercel.app"
 const BACKEND_SITE_URL = "https://chat-app-backend-o0sx.onrender.com"
 const app = express();
 app.use(express.json());
